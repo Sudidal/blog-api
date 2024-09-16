@@ -1,6 +1,7 @@
 import express from "express";
 import { config } from "dotenv";
 import process from "process";
+import { baseRouter } from "./routers/baseRouter";
 
 config();
 
@@ -8,9 +9,9 @@ const PORT = process.env.PORT;
 
 const app = express();
 
-app.get("/", (req, res, next) => {
-  res.send("Alhamdullilah, the server works smoothly");
-});
+app.use(express.urlencoded({ extended: false }));
+
+app.use("/", baseRouter);
 
 app.listen(PORT, () => {
   console.log(
