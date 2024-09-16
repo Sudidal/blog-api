@@ -1,0 +1,22 @@
+{
+  "type": "module",
+  "name": "blog-api",
+  "version": "1.0.0",
+  "description": "The api used for the blog TOP project",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "start-watch": "node --watch-path ./ app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-validator": "^7.2.0",
+    "passport": "^0.7.0",
+    "prisma": "^5.19.1"
+  }
+}
