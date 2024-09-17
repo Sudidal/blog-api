@@ -1,9 +1,11 @@
 import express from "express";
 import { config } from "dotenv";
+import { configPassport } from "./configPassport.js";
 import process from "process";
-import { baseRouter } from "./routers/baseRouter";
+import { baseRouter } from "./routers/baseRouter.js";
 
 config();
+configPassport();
 
 const PORT = process.env.PORT;
 

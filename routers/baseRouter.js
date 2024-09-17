@@ -1,11 +1,17 @@
-import { registerRouter } from "./registerRouter";
-import { loginRouter } from "./loginRouter";
-import { postsRouter } from "./postsRouter";
+import express from "express";
+import passport from "passport";
+import { registerRouter } from "./registerRouter.js";
+import { loginRouter } from "./loginRouter.js";
+import { postsRouter } from "./postsRouter.js";
 
 const router = express.Router();
 
-router.post("/register", registerRouter);
-router.get("/login", loginRouter);
-router.get("/posts", postsRouter);
+router.use("/register", registerRouter);
+router.use("/login", loginRouter);
+router.use(
+  "/posts",
+  passport.authenticate("jwt", { session: false }),
+  postsRouter
+);
 
 export { router as baseRouter };

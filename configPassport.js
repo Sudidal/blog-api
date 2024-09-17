@@ -1,8 +1,9 @@
 import passport from "passport";
 import localStrategy from "passport-local";
-import jwtStrategy from "passport-jwt";
+import passportJwt from "passport-jwt";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
+import process from "node:process";
 
 const prisma = new PrismaClient();
 
@@ -23,6 +24,17 @@ function configPassport() {
       }
       return done(null, user);
     })
+  );
+  passport.use(
+    new passportJwt.Strategy(
+      {
+        jwtFromRequest: passportJwt.ExtractJwt.fromAuthHeaderAsBearerToken(),
+        secretOrKey: process.env.JWT_SECRET,
+      },
+      (jwtPayload, done) => {
+        done(null, jwtPayload);
+      }
+    )
   );
 }
 
