@@ -36,6 +36,38 @@ class PostsController {
       res.json("Post added succesfully: " + req.body.title);
     },
   ];
+
+  async postsDelete(req, res, next) {
+    await prisma.post.delete({
+      where: {
+        id: Number(req.params.postId),
+      },
+    });
+    console.log("Deleted post: " + req.params.postId);
+    res.json({ message: "Post deleted successfully" });
+  }
+  postsPut = [
+    validationChains.postValidationChain(),
+    async (req, res, next) => {
+      const validationErrors = validationResult(req);
+      if (!validationErrors.isEmpty()) {
+        console.log(validationErrors);
+        return res.status(400).json({ errors: validationErrors.array() });
+      }
+      const validatedInput = matchedData(req);
+      await prisma.post.update({
+        where: {
+          id: Number(req.params.postId),
+        },
+        data: {
+          title: validatedInput.title,
+          content: validatedInput.content,
+          postStatus: req.body.published ? "PUBLISHED" : "NOTPUBLISHED",
+        },
+      });
+      res.json({ message: "Post updated successfully" });
+    },
+  ];
 }
 
 const postsController = new PostsController();
