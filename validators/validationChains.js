@@ -38,6 +38,7 @@ class ValidationChains {
       .custom(customValidators.isPasswordsMatch)
       .withMessage("Passwords do not match"),
   ];
+
   postValidationChain = () => [
     body("title")
       .isString()

@@ -7,7 +7,14 @@ const prisma = new PrismaClient();
 class PostsController {
   constructor() {}
 
-  postsGet(req, res, next) {}
+  async postsGet(req, res, next) {
+    const posts = await prisma.post.findMany({
+      where: {
+        postStatus: "PUBLISHED",
+      },
+    });
+    res.json({ posts });
+  }
   postsPost = [
     validationChains.postValidationChain(),
     async (req, res, next) => {
