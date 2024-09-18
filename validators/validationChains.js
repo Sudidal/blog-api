@@ -38,6 +38,23 @@ class ValidationChains {
       .custom(customValidators.isPasswordsMatch)
       .withMessage("Passwords do not match"),
   ];
+  postValidationChain = () => [
+    body("title")
+      .isString()
+      .trim()
+      .isLength({
+        min: validationVars.postTitle_min,
+        max: validationVars.postTitle_max,
+      })
+      .withMessage(
+        `Post title must be between ${validationVars.postTitle_min} and ${validationVars.postTitle_max}`
+      ),
+    body("content")
+      .isString()
+      .trim()
+      .notEmpty()
+      .withMessage("Post content can not be empty"),
+  ];
 }
 
 const validationChains = new ValidationChains();
