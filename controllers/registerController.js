@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 class RegisterController {
   constructor() {}
 
-  registerPost = () => [
+  registerPost = [
     validationChains.registerValidationChain(),
     async (req, res, next) => {
       const validationErrors = validationResult(req);
