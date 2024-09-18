@@ -16,17 +16,18 @@ class RegisterController {
         console.log(validationErrors);
         return res.status(400).json({ errors: validationErrors.array() });
       }
-      const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      const validatedInput = matchedData(req);
+      const hashedPassword = await bcrypt.hash(validatedInput.password, 10);
       await prisma.user.create({
         data: {
-          username: req.body.username,
+          username: validatedInput.username,
           password: hashedPassword,
-          email: req.body.email,
+          email: validatedInput.email,
           role: "USER",
         },
       });
       res.json({
-        message: "Created account succesfully: " + req.body.username,
+        message: "Created account succesfully: " + validatedInput.username,
       });
     },
   ];
