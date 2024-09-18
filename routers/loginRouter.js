@@ -13,7 +13,7 @@ router.post("/", (req, res, next) => {
     function (err, user, info) {
       if (err || !user) {
         console.log(info);
-        return res.status(400).json({ message: info.message, user: user });
+        return res.status(400).json({ message: info.message });
       }
       req.login(user, { session: false }, (err) => {
         if (err) {

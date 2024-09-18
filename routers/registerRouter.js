@@ -14,7 +14,7 @@ router.post("/", [
     const validationErrors = validationResult(req);
     if (!validationErrors.isEmpty()) {
       console.log(validationErrors);
-      return next();
+      return res.status(400).json({ errors: validationErrors.array() });
     }
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     await prisma.user.create({
@@ -22,10 +22,10 @@ router.post("/", [
         username: req.body.username,
         password: hashedPassword,
         email: req.body.email,
-        role: "ADMIN",
+        role: "USER",
       },
     });
-    res.redirect("/login");
+    res.json({ message: "Created account succesfully: " + req.body.username });
   },
 ]);
 
