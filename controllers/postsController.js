@@ -15,6 +15,14 @@ class PostsController {
     });
     res.json({ posts });
   }
+  async postsGetOne(req, res, next) {
+    const post = await prisma.user.findUnique({
+      where: {
+        id: Number(req.params.postId),
+      },
+    });
+    res.json({ post });
+  }
   postsPost = [
     validationChains.postValidationChain(),
     async (req, res, next) => {
@@ -68,6 +76,54 @@ class PostsController {
       res.json({ message: "Post updated successfully" });
     },
   ];
+
+  async commentsGet(req, res, next) {
+    const comments = await prisma.comment.findMany({
+      where: {
+        postId: Number(req.params.postId),
+      },
+    });
+    res.json({ comments });
+  }
+  commentsPost = [
+    validationChains.commentValidationChain(),
+    async (req, res, next) => {
+      const validationErrors = validationResult(req);
+      if (!validationErrors.isEmpty()) {
+        console.log(validationErrors);
+        res.status(400).json({ errors: validationErrors.array() });
+      }
+      const validatedData = matchedData(req);
+      await prisma.comment.create({
+        data: {
+          content: validatedData.content,
+          postId: Number(req.params.postId),
+          userId: Number(req.user.id),
+        },
+      });
+      res.json({ message: "Comment added successfully" });
+    },
+  ];
+
+  async commentsPut(req, res, next) {
+    await prisma.comment.update({
+      where: {
+        id: Number(req.params.commentId),
+      },
+      data: {
+        content: req.body.content,
+      },
+    });
+    res.json({ message: "Comment updated successfully" });
+  }
+  async commentsDelete(req, res, next) {
+    await prisma.comment.delete({
+      where: {
+        id: Number(req.params.commentId),
+      },
+    });
+    res.json({ message: "Comment deleted successfully" });
+  }
 }
 
 const postsController = new PostsController();

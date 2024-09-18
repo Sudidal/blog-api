@@ -56,6 +56,13 @@ class ValidationChains {
       .notEmpty()
       .withMessage("Post content can not be empty"),
   ];
+  commentValidationChain = () => [
+    body("content")
+      .isString()
+      .trim()
+      .notEmpty()
+      .withMessage("Comment can not be empty"),
+  ];
 }
 
 const validationChains = new ValidationChains();
