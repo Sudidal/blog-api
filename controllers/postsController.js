@@ -6,15 +6,18 @@ const prisma = new PrismaClient();
 
 class PostsController {
   constructor() {}
+  #postsLimit = 50;
+  #commentsLimit = 50;
 
-  async postsGet(req, res, next) {
+  postsGet = async (req, res, next) => {
     const posts = await prisma.post.findMany({
       where: {
         postStatus: "PUBLISHED",
       },
+      take: req.query.limit ? Number(req.query.limit) : this.#postsLimit,
     });
     res.json({ posts });
-  }
+  };
   async postsGetOne(req, res, next) {
     const post = await prisma.user.findUnique({
       where: {
@@ -81,6 +84,15 @@ class PostsController {
     const comments = await prisma.comment.findMany({
       where: {
         postId: Number(req.params.postId),
+      },
+      take: req.query.limit ? Number(req.query.limit) : this.#commentsLimit,
+    });
+    res.json({ comments });
+  }
+  async commentsGetOne(req, res, next) {
+    const comments = await prisma.comment.findUnique({
+      where: {
+        id: Number(req.params.commentId),
       },
     });
     res.json({ comments });
