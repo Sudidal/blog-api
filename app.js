@@ -3,6 +3,7 @@ import { config } from "dotenv";
 import { configPassport } from "./configPassport.js";
 import process from "process";
 import { baseRouter } from "./routers/baseRouter.js";
+import cors from "cors";
 
 config();
 configPassport();
@@ -11,8 +12,9 @@ const PORT = process.env.PORT;
 
 const app = express();
 
+app.use(cors());
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
 app.use("/", baseRouter);
 
 app.listen(PORT, () => {
