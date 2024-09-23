@@ -15,10 +15,20 @@ class PostsController {
         postStatus: "PUBLISHED",
       },
       include: {
-        author: true,
+        author: {
+          select: {
+            username: true,
+            email: true,
+          },
+        },
         comments: {
           include: {
-            user: true,
+            user: {
+              select: {
+                username: true,
+                email: true,
+              },
+            },
           },
         },
       },
@@ -33,10 +43,20 @@ class PostsController {
         postStatus: "PUBLISHED",
       },
       include: {
-        author: true,
+        author: {
+          select: {
+            username: true,
+            email: true,
+          },
+        },
         comments: {
           include: {
-            user: true,
+            user: {
+              select: {
+                username: true,
+                email: true,
+              },
+            },
           },
         },
       },
