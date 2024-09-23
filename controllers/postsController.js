@@ -14,14 +14,22 @@ class PostsController {
       where: {
         postStatus: "PUBLISHED",
       },
+      include: {
+        author: true,
+        comments: true,
+      },
       take: req.query.limit ? Number(req.query.limit) : this.#postsLimit,
     });
     res.json({ posts });
   };
   async postsGetOne(req, res, next) {
-    const post = await prisma.user.findUnique({
+    const post = await prisma.post.findUnique({
       where: {
         id: Number(req.params.postId),
+      },
+      include: {
+        author: true,
+        comments: true,
       },
     });
     res.json({ post });
