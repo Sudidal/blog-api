@@ -16,7 +16,11 @@ class PostsController {
       },
       include: {
         author: true,
-        comments: true,
+        comments: {
+          include: {
+            user: true,
+          },
+        },
       },
       take: req.query.limit ? Number(req.query.limit) : this.#postsLimit,
     });
@@ -30,7 +34,11 @@ class PostsController {
       },
       include: {
         author: true,
-        comments: true,
+        comments: {
+          include: {
+            user: true,
+          },
+        },
       },
     });
     res.json({ post });
