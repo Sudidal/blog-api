@@ -26,6 +26,7 @@ class PostsController {
     const post = await prisma.post.findUnique({
       where: {
         id: Number(req.params.postId),
+        postStatus: "PUBLISHED",
       },
       include: {
         author: true,
