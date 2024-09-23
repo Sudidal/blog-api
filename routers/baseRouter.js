@@ -1,8 +1,10 @@
 import express from "express";
 import passport from "passport";
+import errorHandler from "../middleware/errorHandler.js";
 import { registerRouter } from "./registerRouter.js";
 import { loginRouter } from "./loginRouter.js";
 import { postsRouter } from "./postsRouter.js";
+import { notFoundRouter } from "./notFoundRouter.js";
 
 const router = express.Router();
 
@@ -13,8 +15,8 @@ router.use(
   passport.authenticate("jwt", { session: false }),
   postsRouter
 );
-router.all("/*", (req, res, next) => {
-  res.status(404).json({ message: "404, Not Found!" });
-});
+router.use("/*", notFoundRouter);
+
+router.use(errorHandler);
 
 export { router as baseRouter };
