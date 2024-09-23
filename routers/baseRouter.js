@@ -13,5 +13,8 @@ router.use(
   passport.authenticate("jwt", { session: false }),
   postsRouter
 );
+router.all("/*", (req, res, next) => {
+  res.status(404).json({ message: "404, Not Found!" });
+});
 
 export { router as baseRouter };
