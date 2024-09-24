@@ -10,6 +10,7 @@ class UsersController {
       select: {
         username: true,
         email: true,
+        role: true,
       },
     });
     res.json({ users });
@@ -22,6 +23,7 @@ class UsersController {
       select: {
         username: true,
         email: true,
+        role: true,
       },
     });
     res.json({ user });
