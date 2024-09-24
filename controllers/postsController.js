@@ -140,7 +140,7 @@ class PostsController {
       const validationErrors = validationResult(req);
       if (!validationErrors.isEmpty()) {
         console.log(validationErrors);
-        res.status(400).json({ errors: validationErrors.array() });
+        return res.status(400).json({ errors: validationErrors.array() });
       }
       const validatedData = matchedData(req);
       await prisma.comment.create({
@@ -154,17 +154,26 @@ class PostsController {
     },
   ];
 
-  async commentsPut(req, res, next) {
-    await prisma.comment.update({
-      where: {
-        id: Number(req.params.commentId),
-      },
-      data: {
-        content: req.body.content,
-      },
-    });
-    res.json({ message: "Comment updated successfully" });
-  }
+  commentsPut = [
+    validationChains.commentValidationChain(),
+    async (req, res, next) => {
+      const validationErrors = validationResult(req);
+      if (!validationErrors.isEmpty()) {
+        console.log(validationErrors);
+        return res.status(400).json({ errors: validationErrors.array() });
+      }
+      const validatedData = matchedData(req);
+      await prisma.comment.update({
+        where: {
+          id: Number(req.params.commentId),
+        },
+        data: {
+          content: validatedData.content,
+        },
+      });
+      res.json({ message: "Comment updated successfully" });
+    },
+  ];
   async commentsDelete(req, res, next) {
     await prisma.comment.delete({
       where: {
