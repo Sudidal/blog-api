@@ -23,8 +23,6 @@ class UsersController {
     const token = req.headers.authorization.split(" ")[1];
     const userId = jwt.verify(token, process.env.JWT_SECRET).id;
 
-    console.log(userId);
-
     const user = await prisma.user.findUnique({
       where: {
         id: userId,
