@@ -65,7 +65,6 @@ class PostsController {
         return res.status(400).json({ errors: validationErrors.array() });
       }
       const validatedInput = matchedData(req);
-      console.log(req.body.publish + " : " + typeof req.body.publish);
       await prisma.post.create({
         data: {
           title: validatedInput.title,
@@ -104,7 +103,7 @@ class PostsController {
         data: {
           title: validatedInput.title,
           content: validatedInput.content,
-          postStatus: req.body.published ? "PUBLISHED" : "NOTPUBLISHED",
+          postStatus: req.body.publish ? "PUBLISHED" : "NOTPUBLISHED",
         },
       });
       res.json({ message: "Post updated successfully" });
