@@ -110,6 +110,20 @@ class PostsController {
     },
   ];
 
+  postsLikePost = async (req, res, next) => {
+    await prisma.post.update({
+      where: {
+        id: Number(req.params.postId),
+      },
+      data: {
+        likes: {
+          increment: 1,
+        },
+      },
+    });
+    res.json({ message: "Post liked successfully" });
+  };
+
   commentsGet = async (req, res, next) => {
     const comments = await prisma.comment.findMany({
       where: {
@@ -177,6 +191,19 @@ class PostsController {
       res.json({ message: "Comment updated successfully" });
     },
   ];
+  commentsLikePost = async (req, res, next) => {
+    await prisma.comment.update({
+      where: {
+        id: Number(req.params.commentId),
+      },
+      data: {
+        likes: {
+          increment: 1,
+        },
+      },
+    });
+    res.json({ message: "Comment liked successfully" });
+  };
   commentsDelete = async (req, res, next) => {
     await prisma.comment.delete({
       where: {
