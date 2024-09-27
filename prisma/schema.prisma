@@ -27,7 +27,7 @@ model Post {
   authorId    Int
   comments    Comment[]
 
-  author User @relation(fields: [authorId], references: [id])
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
 model Comment {
@@ -37,8 +37,8 @@ model Comment {
   postId  Int
   userId  Int
 
-  post Post @relation(fields: [postId], references: [id])
-  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum Role {
