@@ -106,6 +106,16 @@ class Permissions {
     const permissible = this.#checkPermission(user, this.#editPosts, isOwner);
     return permissible;
   };
+  canDeleteThisPost = async (user, postId) => {
+    const isOwner = await this.#ownsThisPost(user, postId);
+    const permissible = this.#checkPermission(user, this.#deletePosts, isOwner);
+    return permissible;
+  };
+  canEditThisComment = async (user, commentId) => {
+    const isOwner = await this.#ownsThisComment(user, commentId);
+    const permissible = this.#checkPermission(user, this.#editPosts, isOwner);
+    return permissible;
+  };
   canDeleteThisComment = async (user, commentId) => {
     const isOwner = await this.#ownsThisComment(user, commentId);
     const permissible = this.#checkPermission(
