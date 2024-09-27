@@ -35,19 +35,19 @@ class Permissions {
 
   //-------- Helper functions
   #checkPermission = (user, permissionObj, isOwner = false) => {
-    let legible = false;
+    let permissble = false;
     permissionObj.general.forEach((role) => {
-      if (user.role === role) legible = true;
+      if (user.role === role) permissble = true;
     });
-    if (legible) {
+    if (permissble) {
       return true;
     } else {
       if (isOwner) {
         if (permissionObj.owned?.length) {
           permissionObj.owned.forEach((role) => {
-            if (user.role === role) legible = true;
+            if (user.role === role) permissble = true;
           });
-          if (legible) {
+          if (permissble) {
             return true;
           }
         }
@@ -70,7 +70,7 @@ class Permissions {
     return this.#checkPermission(user, this.#makePosts);
   };
   canMakeComments = (user) => {
-    const general = this.#checkPermission(user, this.#makeComments);
+    return this.#checkPermission(user, this.#makeComments);
   };
   canLikePosts = (user) => {
     return this.#checkPermission(user, this.#likePosts);
