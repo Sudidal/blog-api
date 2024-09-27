@@ -56,68 +56,39 @@ class Permissions {
     return false;
   };
 
-  #ownsThisPost = async (user, postId) => {
-    const post = await this.#getPostById(postId);
+  #ownsThisPost = async (user, post) => {
     return post.authorId === user.id;
   };
-  #ownsThisComment = async (user, commentId) => {
-    const comment = await this.#getCommentById(commentId);
+  #ownsThisComment = async (user, comment) => {
     return comment.userId === user.id;
-  };
-
-  #getPostById = async (postId) => {
-    try {
-      const post = await prisma.post.findUnique({
-        where: {
-          id: postId,
-        },
-      });
-      return post;
-    } catch (err) {
-      // call next() somehow
-      throw new Error(err);
-    }
-  };
-  #getCommentById = async (commentId) => {
-    try {
-      const comment = await prisma.comment.findUnique({
-        where: {
-          id: commentId,
-        },
-      });
-      return comment;
-    } catch (err) {
-      // call next() somehow
-      throw new Error(err);
-    }
   };
 
   constructor() {}
 
   //-------- API
-  canMakePosts = async (user) => {
+  canMakePosts = (user) => {
     return this.#checkPermission(user, this.#makePosts);
   };
   canMakeComments = (user) => {
     const general = this.#checkPermission(user, this.#makeComments);
   };
-  canEditThisPost = async (user, postId) => {
-    const isOwner = await this.#ownsThisPost(user, postId);
+  canEditThisPost = (user, post) => {
+    const isOwner = this.#ownsThisPost(user, post);
     const permissible = this.#checkPermission(user, this.#editPosts, isOwner);
     return permissible;
   };
-  canDeleteThisPost = async (user, postId) => {
-    const isOwner = await this.#ownsThisPost(user, postId);
+  canDeleteThisPost = (user, post) => {
+    const isOwner = this.#ownsThisPost(user, post);
     const permissible = this.#checkPermission(user, this.#deletePosts, isOwner);
     return permissible;
   };
-  canEditThisComment = async (user, commentId) => {
-    const isOwner = await this.#ownsThisComment(user, commentId);
+  canEditThisComment = (user, comment) => {
+    const isOwner = this.#ownsThisComment(user, comment);
     const permissible = this.#checkPermission(user, this.#editPosts, isOwner);
     return permissible;
   };
-  canDeleteThisComment = async (user, commentId) => {
-    const isOwner = await this.#ownsThisComment(user, commentId);
+  canDeleteThisComment = (user, comment) => {
+    const isOwner = this.#ownsThisComment(user, comment);
     const permissible = this.#checkPermission(
       user,
       this.#deleteComments,
