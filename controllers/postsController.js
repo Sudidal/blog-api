@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { validationResult, matchedData } from "express-validator";
 import validationChains from "../validators/validationChains.js";
+import permissions from "../permissions.js";
 
 const prisma = new PrismaClient();
 
@@ -33,6 +34,7 @@ class PostsController {
       },
       take: req.query.limit ? Number(req.query.limit) : this.#postsLimit,
     });
+    this.#addPostPermissionProps(req.user, posts);
     res.json({ posts });
   };
   postsGetOne = async (req, res, next) => {
@@ -54,6 +56,7 @@ class PostsController {
         },
       },
     });
+    this.#addPostPermissionProps(req.user, post);
     res.json({ post });
   };
   postsPost = [
@@ -136,10 +139,11 @@ class PostsController {
       },
       take: req.query.limit ? Number(req.query.limit) : this.#commentsLimit,
     });
+    this.#addCommentPermissionProps(req.user, comments);
     res.json({ comments });
   };
   commentsGetOne = async (req, res, next) => {
-    const comments = await prisma.comment.findUnique({
+    const comment = await prisma.comment.findUnique({
       where: {
         id: Number(req.params.commentId),
       },
@@ -149,7 +153,8 @@ class PostsController {
         },
       },
     });
-    res.json({ comments });
+    this.#addCommentPermissionProps(req.user, comment);
+    res.json({ comment });
   };
   commentsPost = [
     validationChains.commentValidationChain(),
@@ -212,6 +217,29 @@ class PostsController {
     });
     res.json({ message: "Comment deleted successfully" });
   };
+
+  async #addPostPermissionProps(user, postArr) {
+    if (!Array.isArray(postArr)) {
+      postArr = [postArr];
+    }
+    postArr.forEach(async (post) => {
+      const editable = permissions.canEditThisPost(user, post);
+      const deletable = permissions.canDeleteThisPost(user, post);
+      post.editableByUser = editable;
+      post.deletableByUser = deletable;
+    });
+  }
+  async #addCommentPermissionProps(user, commentArr) {
+    if (!Array.isArray(commentArr)) {
+      commentArr = [commentArr];
+    }
+    commentArr.forEach(async (comment) => {
+      const editable = permissions.canEditThisComment(user, comment);
+      const deletable = permissions.canDeleteThisComment(user, comment);
+      comment.editableByUser = editable;
+      comment.deletableByUser = deletable;
+    });
+  }
 }
 
 const postsController = new PostsController();
