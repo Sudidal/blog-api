@@ -2,6 +2,10 @@ import { PrismaClient } from "@prisma/client";
 import { validationResult, matchedData } from "express-validator";
 import validationChains from "../validators/validationChains.js";
 import permissions from "../permissions.js";
+import {
+  refuseUnpermissiblePostAction,
+  refuseUnpermissibleCommentAction,
+} from "../middleware/refuseUnpermissible.js";
 
 const prisma = new PrismaClient();
 
@@ -60,6 +64,7 @@ class PostsController {
     res.json({ post });
   };
   postsPost = [
+    refuseUnpermissiblePostAction(permissions.canMakePosts),
     validationChains.postValidationChain(),
     async (req, res, next) => {
       const validationErrors = validationResult(req);
@@ -80,17 +85,20 @@ class PostsController {
       res.json("Post added succesfully: " + req.body.title);
     },
   ];
-
-  postsDelete = async (req, res, next) => {
-    await prisma.post.delete({
-      where: {
-        id: Number(req.params.postId),
-      },
-    });
-    console.log("Deleted post: " + req.params.postId);
-    res.json({ message: "Post deleted successfully" });
-  };
+  postsDelete = [
+    refuseUnpermissiblePostAction(permissions.canDeleteThisPost),
+    async (req, res, next) => {
+      await prisma.post.delete({
+        where: {
+          id: Number(req.params.postId),
+        },
+      });
+      console.log("Deleted post: " + req.params.postId);
+      res.json({ message: "Post deleted successfully" });
+    },
+  ];
   postsPut = [
+    refuseUnpermissiblePostAction(permissions.canEditThisPost),
     validationChains.postValidationChain(),
     async (req, res, next) => {
       const validationErrors = validationResult(req);
@@ -113,19 +121,22 @@ class PostsController {
     },
   ];
 
-  postsLikePost = async (req, res, next) => {
-    await prisma.post.update({
-      where: {
-        id: Number(req.params.postId),
-      },
-      data: {
-        likes: {
-          increment: 1,
+  postsLikePost = [
+    refuseUnpermissiblePostAction(permissions.canLikeComments),
+    async (req, res, next) => {
+      await prisma.post.update({
+        where: {
+          id: Number(req.params.postId),
         },
-      },
-    });
-    res.json({ message: "Post liked successfully" });
-  };
+        data: {
+          likes: {
+            increment: 1,
+          },
+        },
+      });
+      res.json({ message: "Post liked successfully" });
+    },
+  ];
 
   commentsGet = async (req, res, next) => {
     const comments = await prisma.comment.findMany({
@@ -157,6 +168,7 @@ class PostsController {
     res.json({ comment });
   };
   commentsPost = [
+    refuseUnpermissibleCommentAction(permissions.canMakeComments),
     validationChains.commentValidationChain(),
     async (req, res, next) => {
       const validationErrors = validationResult(req);
@@ -177,6 +189,7 @@ class PostsController {
   ];
 
   commentsPut = [
+    refuseUnpermissibleCommentAction(permissions.canEditThisComment),
     validationChains.commentValidationChain(),
     async (req, res, next) => {
       const validationErrors = validationResult(req);
@@ -196,19 +209,23 @@ class PostsController {
       res.json({ message: "Comment updated successfully" });
     },
   ];
-  commentsLikePost = async (req, res, next) => {
-    await prisma.comment.update({
-      where: {
-        id: Number(req.params.commentId),
-      },
-      data: {
-        likes: {
-          increment: 1,
+
+  commentsLikePost = [
+    refuseUnpermissibleCommentAction(permissions.canLikeComments),
+    async (req, res, next) => {
+      await prisma.comment.update({
+        where: {
+          id: Number(req.params.commentId),
         },
-      },
-    });
-    res.json({ message: "Comment liked successfully" });
-  };
+        data: {
+          likes: {
+            increment: 1,
+          },
+        },
+      });
+      res.json({ message: "Comment liked successfully" });
+    },
+  ];
   commentsDelete = async (req, res, next) => {
     await prisma.comment.delete({
       where: {
