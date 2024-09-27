@@ -72,6 +72,12 @@ class Permissions {
   canMakeComments = (user) => {
     const general = this.#checkPermission(user, this.#makeComments);
   };
+  canLikePosts = (user) => {
+    return this.#checkPermission(user, this.#likePosts);
+  };
+  canLikeComments = (user) => {
+    return this.#checkPermission(user, this.#likeComments);
+  };
   canEditThisPost = (user, post) => {
     const isOwner = this.#ownsThisPost(user, post);
     const permissible = this.#checkPermission(user, this.#editPosts, isOwner);

@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { validationResult, matchedData } from "express-validator";
 import validationChains from "../validators/validationChains.js";
-import permissions from "../permissions.js";
 
 const prisma = new PrismaClient();
 
@@ -213,18 +212,6 @@ class PostsController {
     });
     res.json({ message: "Comment deleted successfully" });
   };
-
-  async #addPostPermissionProps(user, postArr) {
-    if (!Array.isArray(postArr)) {
-      postArr = [postArr];
-    }
-    postArr.forEach(async (post) => {
-      const editable = await permissions.canEditThisPost(user, post);
-      const deletable = await permissions.canDeleteThisPost(user, post);
-      post.editableByUser = editable;
-      post.deletableByUser = deletable;
-    });
-  }
 }
 
 const postsController = new PostsController();
