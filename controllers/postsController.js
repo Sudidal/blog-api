@@ -31,12 +31,18 @@ class PostsController {
             select: this.userSelectOptions,
           },
           comments: {
+            orderBy: {
+              id: "desc",
+            },
             include: {
               user: {
                 select: this.userSelectOptions,
               },
             },
           },
+        },
+        orderBy: {
+          id: "desc",
         },
         take: req.query.limit ? Number(req.query.limit) : this.#postsLimit,
       })
@@ -60,6 +66,9 @@ class PostsController {
             select: this.userSelectOptions,
           },
           comments: {
+            orderBy: {
+              id: "desc",
+            },
             include: {
               user: {
                 select: this.userSelectOptions,
@@ -183,6 +192,9 @@ class PostsController {
           user: {
             select: this.userSelectOptions,
           },
+        },
+        orderBy: {
+          id: "desc",
         },
         take: req.query.limit ? Number(req.query.limit) : this.#commentsLimit,
       })
