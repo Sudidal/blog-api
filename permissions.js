@@ -75,21 +75,25 @@ class Permissions {
     return this.#checkPermission(user, this.#likeComments);
   };
   canEditThisPost = (user, post) => {
+    if (!post) return false;
     const isOwner = this.#ownsThisPost(user, post);
     const permissible = this.#checkPermission(user, this.#editPosts, isOwner);
     return permissible;
   };
   canDeleteThisPost = (user, post) => {
+    if (!post) return false;
     const isOwner = this.#ownsThisPost(user, post);
     const permissible = this.#checkPermission(user, this.#deletePosts, isOwner);
     return permissible;
   };
   canEditThisComment = (user, comment) => {
+    if (!comment) return false;
     const isOwner = this.#ownsThisComment(user, comment);
     const permissible = this.#checkPermission(user, this.#editPosts, isOwner);
     return permissible;
   };
   canDeleteThisComment = (user, comment) => {
+    if (!comment) return false;
     const isOwner = this.#ownsThisComment(user, comment);
     const permissible = this.#checkPermission(
       user,
