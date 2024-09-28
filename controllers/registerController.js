@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
+import asyncHandler from "../utils/asyncHandler.js";
 import { validationResult, matchedData } from "express-validator";
 import validationChains from "../validators/validationChains.js";
 
@@ -18,14 +19,19 @@ class RegisterController {
       }
       const validatedInput = matchedData(req);
       const hashedPassword = await bcrypt.hash(validatedInput.password, 10);
-      await prisma.user.create({
-        data: {
-          username: validatedInput.username,
-          password: hashedPassword,
-          email: validatedInput.email,
-          role: "USER",
-        },
-      });
+      const [result, err] = await asyncHandler.prismaQuery(() =>
+        prisma.user.create({
+          data: {
+            username: validatedInput.username,
+            password: hashedPassword,
+            email: validatedInput.email,
+            role: "USER",
+          },
+        })
+      );
+      if (err) {
+        return next(err);
+      }
       res.json({
         message: "Created account succesfully: " + validatedInput.username,
       });

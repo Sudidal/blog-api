@@ -3,6 +3,7 @@ import localStrategy from "passport-local";
 import passportJwt from "passport-jwt";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
+import asyncHandler from "./utils/asyncHandler.js";
 import process from "node:process";
 
 const prisma = new PrismaClient();
@@ -10,11 +11,16 @@ const prisma = new PrismaClient();
 function configPassport() {
   passport.use(
     new localStrategy(async (username, password, done) => {
-      const user = await prisma.user.findFirst({
-        where: {
-          username: username,
-        },
-      });
+      const [user, err] = await asyncHandler.prismaQuery(() =>
+        prisma.user.findFirst({
+          where: {
+            username: username,
+          },
+        })
+      );
+      if (err) {
+        return next(err);
+      }
       if (!user) {
         return done(null, false, { message: "Username does not exist" });
       }

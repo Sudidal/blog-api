@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import asyncHandler from "../utils/asyncHandler.js";
 import { validationResult, matchedData } from "express-validator";
 import validationChains from "../validators/validationChains.js";
 import permissions from "../permissions.js";
@@ -20,46 +21,58 @@ class PostsController {
   };
 
   postsGet = async (req, res, next) => {
-    const posts = await prisma.post.findMany({
-      where: {
-        postStatus: "PUBLISHED",
-      },
-      include: {
-        author: {
-          select: this.userSelectOptions,
+    const [posts, err] = await asyncHandler.prismaQuery(() =>
+      prisma.post.findMany({
+        where: {
+          postStatus: "PUBLISHED",
         },
-        comments: {
-          include: {
-            user: {
-              select: this.userSelectOptions,
+        include: {
+          author: {
+            select: this.userSelectOptions,
+          },
+          comments: {
+            include: {
+              user: {
+                select: this.userSelectOptions,
+              },
             },
           },
         },
-      },
-      take: req.query.limit ? Number(req.query.limit) : this.#postsLimit,
-    });
+        take: req.query.limit ? Number(req.query.limit) : this.#postsLimit,
+      })
+    );
+    if (err) {
+      return next(err);
+    }
+
     this.#addPostPermissionProps(req.user, posts);
     res.json({ posts });
   };
   postsGetOne = async (req, res, next) => {
-    const post = await prisma.post.findUnique({
-      where: {
-        id: Number(req.params.postId),
-        postStatus: "PUBLISHED",
-      },
-      include: {
-        author: {
-          select: this.userSelectOptions,
+    const [post, err] = await asyncHandler.prismaQuery(() =>
+      prisma.post.findUnique({
+        where: {
+          id: Number(req.params.postId),
+          postStatus: "PUBLISHED",
         },
-        comments: {
-          include: {
-            user: {
-              select: this.userSelectOptions,
+        include: {
+          author: {
+            select: this.userSelectOptions,
+          },
+          comments: {
+            include: {
+              user: {
+                select: this.userSelectOptions,
+              },
             },
           },
         },
-      },
-    });
+      })
+    );
+    if (err) {
+      return next(err);
+    }
+
     this.#addPostPermissionProps(req.user, post);
     res.json({ post });
   };
@@ -73,26 +86,38 @@ class PostsController {
         return res.status(400).json({ errors: validationErrors.array() });
       }
       const validatedInput = matchedData(req);
-      await prisma.post.create({
-        data: {
-          title: validatedInput.title,
-          content: validatedInput.content,
-          postStatus: req.body.publish ? "PUBLISHED" : "NOTPUBLISHED",
-          publishDate: new Date().toISOString(),
-          authorId: req.user.id,
-        },
-      });
+      const [result, err] = await asyncHandler.prismaQuery(() =>
+        prisma.post.create({
+          data: {
+            title: validatedInput.title,
+            content: validatedInput.content,
+            postStatus: req.body.publish ? "PUBLISHED" : "NOTPUBLISHED",
+            publishDate: new Date().toISOString(),
+            authorId: req.user.id,
+          },
+        })
+      );
+      if (err) {
+        return next(err);
+      }
+
       res.json("Post added succesfully: " + req.body.title);
     },
   ];
   postsDelete = [
     refuseUnpermissiblePostAction(permissions.canDeleteThisPost),
     async (req, res, next) => {
-      await prisma.post.delete({
-        where: {
-          id: Number(req.params.postId),
-        },
-      });
+      const [result, err] = await asyncHandler.prismaQuery(() =>
+        prisma.post.delete({
+          where: {
+            id: Number(req.params.postId),
+          },
+        })
+      );
+      if (err) {
+        return next(err);
+      }
+
       console.log("Deleted post: " + req.params.postId);
       res.json({ message: "Post deleted successfully" });
     },
@@ -107,16 +132,21 @@ class PostsController {
         return res.status(400).json({ errors: validationErrors.array() });
       }
       const validatedInput = matchedData(req);
-      await prisma.post.update({
-        where: {
-          id: Number(req.params.postId),
-        },
-        data: {
-          title: validatedInput.title,
-          content: validatedInput.content,
-          postStatus: req.body.publish ? "PUBLISHED" : "NOTPUBLISHED",
-        },
-      });
+      const [result, err] = await asyncHandler.prismaQuery(() =>
+        prisma.post.update({
+          where: {
+            id: Number(req.params.postId),
+          },
+          data: {
+            title: validatedInput.title,
+            content: validatedInput.content,
+            postStatus: req.body.publish ? "PUBLISHED" : "NOTPUBLISHED",
+          },
+        })
+      );
+      if (err) {
+        return next(err);
+      }
       res.json({ message: "Post updated successfully" });
     },
   ];
@@ -124,46 +154,61 @@ class PostsController {
   postsLikePost = [
     refuseUnpermissiblePostAction(permissions.canLikeComments),
     async (req, res, next) => {
-      await prisma.post.update({
-        where: {
-          id: Number(req.params.postId),
-        },
-        data: {
-          likes: {
-            increment: 1,
+      const [result, err] = await asyncHandler.prismaQuery(() =>
+        prisma.post.update({
+          where: {
+            id: Number(req.params.postId),
           },
-        },
-      });
+          data: {
+            likes: {
+              increment: 1,
+            },
+          },
+        })
+      );
+      if (err) {
+        return next(err);
+      }
       res.json({ message: "Post liked successfully" });
     },
   ];
 
   commentsGet = async (req, res, next) => {
-    const comments = await prisma.comment.findMany({
-      where: {
-        postId: Number(req.params.postId),
-      },
-      include: {
-        user: {
-          select: this.userSelectOptions,
+    const [comments, err] = await asyncHandler.prismaQuery(() =>
+      prisma.comment.findMany({
+        where: {
+          postId: Number(req.params.postId),
         },
-      },
-      take: req.query.limit ? Number(req.query.limit) : this.#commentsLimit,
-    });
+        include: {
+          user: {
+            select: this.userSelectOptions,
+          },
+        },
+        take: req.query.limit ? Number(req.query.limit) : this.#commentsLimit,
+      })
+    );
+    if (err) {
+      return next(err);
+    }
     this.#addCommentPermissionProps(req.user, comments);
     res.json({ comments });
   };
   commentsGetOne = async (req, res, next) => {
-    const comment = await prisma.comment.findUnique({
-      where: {
-        id: Number(req.params.commentId),
-      },
-      include: {
-        user: {
-          select: this.userSelectOptions,
+    const [comment, err] = await asyncHandler.prismaQuery(() =>
+      prisma.comment.findUnique({
+        where: {
+          id: Number(req.params.commentId),
         },
-      },
-    });
+        include: {
+          user: {
+            select: this.userSelectOptions,
+          },
+        },
+      })
+    );
+    if (err) {
+      return next(err);
+    }
     this.#addCommentPermissionProps(req.user, comment);
     res.json({ comment });
   };
@@ -177,13 +222,18 @@ class PostsController {
         return res.status(400).json({ errors: validationErrors.array() });
       }
       const validatedData = matchedData(req);
-      await prisma.comment.create({
-        data: {
-          content: validatedData.content,
-          postId: Number(req.params.postId),
-          userId: Number(req.user.id),
-        },
-      });
+      const [result, err] = await asyncHandler.prismaQuery(() =>
+        prisma.comment.create({
+          data: {
+            content: validatedData.content,
+            postId: Number(req.params.postId),
+            userId: Number(req.user.id),
+          },
+        })
+      );
+      if (err) {
+        return next(err);
+      }
       res.json({ message: "Comment added successfully" });
     },
   ];
@@ -198,14 +248,19 @@ class PostsController {
         return res.status(400).json({ errors: validationErrors.array() });
       }
       const validatedData = matchedData(req);
-      await prisma.comment.update({
-        where: {
-          id: Number(req.params.commentId),
-        },
-        data: {
-          content: validatedData.content,
-        },
-      });
+      const [result, err] = await asyncHandler.prismaQuery(() =>
+        prisma.comment.update({
+          where: {
+            id: Number(req.params.commentId),
+          },
+          data: {
+            content: validatedData.content,
+          },
+        })
+      );
+      if (err) {
+        return next(err);
+      }
       res.json({ message: "Comment updated successfully" });
     },
   ];
@@ -213,25 +268,35 @@ class PostsController {
   commentsLikePost = [
     refuseUnpermissibleCommentAction(permissions.canLikeComments),
     async (req, res, next) => {
-      await prisma.comment.update({
-        where: {
-          id: Number(req.params.commentId),
-        },
-        data: {
-          likes: {
-            increment: 1,
+      const [result, err] = await asyncHandler.prismaQuery(() =>
+        prisma.comment.update({
+          where: {
+            id: Number(req.params.commentId),
           },
-        },
-      });
+          data: {
+            likes: {
+              increment: 1,
+            },
+          },
+        })
+      );
+      if (err) {
+        return next(err);
+      }
       res.json({ message: "Comment liked successfully" });
     },
   ];
   commentsDelete = async (req, res, next) => {
-    await prisma.comment.delete({
-      where: {
-        id: Number(req.params.commentId),
-      },
-    });
+    const [result, err] = await asyncHandler.prismaQuery(() =>
+      prisma.comment.delete({
+        where: {
+          id: Number(req.params.commentId),
+        },
+      })
+    );
+    if (err) {
+      return next(err);
+    }
     res.json({ message: "Comment deleted successfully" });
   };
 
