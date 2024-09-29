@@ -316,6 +316,7 @@ class PostsController {
   ];
 
   async #addPostPermissionProps(user, postArr) {
+    if (!postArr) return;
     if (!Array.isArray(postArr)) {
       postArr = [postArr];
     }
@@ -324,9 +325,11 @@ class PostsController {
       const deletable = permissions.canDeleteThisPost(user, post);
       post.editableByUser = editable;
       post.deletableByUser = deletable;
+      this.#addCommentPermissionProps(user, post.comments);
     });
   }
   async #addCommentPermissionProps(user, commentArr) {
+    if (!commentArr) return;
     if (!Array.isArray(commentArr)) {
       commentArr = [commentArr];
     }
