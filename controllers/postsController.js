@@ -298,19 +298,22 @@ class PostsController {
       res.json({ message: "Comment liked successfully" });
     },
   ];
-  commentsDelete = async (req, res, next) => {
-    const [result, err] = await asyncHandler.prismaQuery(() =>
-      prisma.comment.delete({
-        where: {
-          id: Number(req.params.commentId),
-        },
-      })
-    );
-    if (err) {
-      return next(err);
-    }
-    res.json({ message: "Comment deleted successfully" });
-  };
+  commentsDelete = [
+    refuseUnpermissibleCommentAction(permissions.canDeleteThisComment),
+    async (req, res, next) => {
+      const [result, err] = await asyncHandler.prismaQuery(() =>
+        prisma.comment.delete({
+          where: {
+            id: Number(req.params.commentId),
+          },
+        })
+      );
+      if (err) {
+        return next(err);
+      }
+      res.json({ message: "Comment deleted successfully" });
+    },
+  ];
 
   async #addPostPermissionProps(user, postArr) {
     if (!Array.isArray(postArr)) {

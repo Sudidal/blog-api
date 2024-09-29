@@ -52,10 +52,10 @@ class Permissions {
     return false;
   };
 
-  #ownsThisPost = async (user, post) => {
+  #ownsThisPost = (user, post) => {
     return post.authorId === user.id;
   };
-  #ownsThisComment = async (user, comment) => {
+  #ownsThisComment = (user, comment) => {
     return comment.userId === user.id;
   };
 
@@ -95,11 +95,13 @@ class Permissions {
   canDeleteThisComment = (user, comment) => {
     if (!comment) return false;
     const isOwner = this.#ownsThisComment(user, comment);
+    console.log(isOwner);
     const permissible = this.#checkPermission(
       user,
       this.#deleteComments,
       isOwner
     );
+    console.log(permissible);
     return permissible;
   };
 }
