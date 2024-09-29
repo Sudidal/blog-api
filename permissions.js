@@ -15,6 +15,10 @@ class Permissions {
     general: [this.#ADMIN],
     owned: [this.#AUTHOR],
   };
+  #editComments = {
+    general: [this.#ADMIN],
+    owned: [this.#USER, this.#AUTHOR],
+  };
   #deletePosts = {
     general: [this.#ADMIN],
     owned: [this.#AUTHOR],
@@ -89,19 +93,21 @@ class Permissions {
   canEditThisComment = (user, comment) => {
     if (!comment) return false;
     const isOwner = this.#ownsThisComment(user, comment);
-    const permissible = this.#checkPermission(user, this.#editPosts, isOwner);
+    const permissible = this.#checkPermission(
+      user,
+      this.#editComments,
+      isOwner
+    );
     return permissible;
   };
   canDeleteThisComment = (user, comment) => {
     if (!comment) return false;
     const isOwner = this.#ownsThisComment(user, comment);
-    console.log(isOwner);
     const permissible = this.#checkPermission(
       user,
       this.#deleteComments,
       isOwner
     );
-    console.log(permissible);
     return permissible;
   };
 }
