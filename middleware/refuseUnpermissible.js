@@ -23,7 +23,7 @@ function refuseUnpermissiblePostAction(permissionCheck) {
     if (!permissible) {
       return res
         .status(403)
-        .json({ message: "You are not allowed to do this action" });
+        .json({ errors: "You are not allowed to do this action" });
     }
     next();
   };
@@ -48,7 +48,7 @@ function refuseUnpermissibleCommentAction(permissionCheck) {
     if (!permissible) {
       return res
         .status(403)
-        .json({ message: "You are not allowed to do this action" });
+        .json({ errors: "You are not allowed to do this action" });
     }
     next();
   };
