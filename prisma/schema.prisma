@@ -34,6 +34,7 @@ model Comment {
   id      Int    @id @default(autoincrement())
   content String
   likes   Int    @default(0)
+  publishDate DateTime
   postId  Int
   userId  Int
 

@@ -238,6 +238,7 @@ class PostsController {
         prisma.comment.create({
           data: {
             content: validatedData.content,
+            publishDate: new Date().toISOString(),
             postId: Number(req.params.postId),
             userId: Number(req.user.id),
           },
