@@ -2,7 +2,7 @@ import express from "express";
 import { config } from "dotenv";
 import { configPassport } from "./configPassport.js";
 import process from "process";
-import cors from "cors";
+import cors from "./node_modules/cors/lib/index.js";
 import errorHandler from "./middleware/errorHandler.js";
 import { baseRouter } from "./routers/baseRouter.js";
 
